@@ -1,6 +1,5 @@
-FROM node:14.17-alpine
+FROM node:16
 
-# install dependencies
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci
@@ -10,11 +9,8 @@ COPY . .
 
 RUN npm run build
 
-###
-# Only copy over the Node pieces we need
 # ~> Saves 35MB
-###
-FROM node:14.17-slim
+FROM node:16-slim
 
 WORKDIR /app
 COPY --from=0 /app .
