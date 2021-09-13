@@ -1,7 +1,7 @@
 version: "3.4"
 services:
-  client:
-    image: client
+  svelte:
+    image: svelte
     restart: on-failure
     build:
       context: ./app
@@ -11,3 +11,15 @@ services:
     volumes:
       - ./:/usr/src/app
       - /usr/src/app/node_modules
+  
+  nginx: 
+    image: nginx:latest
+    container_name: production_nginx
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - 80:80
+      - 443:443
+
+
+
