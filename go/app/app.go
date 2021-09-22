@@ -4,15 +4,13 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"net/http"
+	"main/app/router"
 
-	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
 )
 
 type App struct {
-	Router *mux.Router
-	DB     *sql.DB
+	DB *sql.DB
 }
 
 func (a *App) Initialize(user, password, dbname string) {
@@ -26,7 +24,6 @@ func (a *App) Initialize(user, password, dbname string) {
 		log.Fatal(err)
 	}
 
-	a.Router = mux.NewRouter()
 	a.ensureTablesExist()
 }
 
@@ -44,6 +41,6 @@ func (a *App) ensureTablesExist() {
 
 }
 
-func (a *App) Run(addr string) {
-	log.Fatal(http.ListenAndServe(":8010", nil))
+func (a *App) Run() {
+	router.Initialize()
 }
