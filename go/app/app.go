@@ -13,9 +13,14 @@ type App struct {
 	DB *sql.DB
 }
 
+const (
+	HOST = "db"
+	PORT = 5432
+)
+
 func (a *App) Initialize(user, password, dbname string) {
 	connectionString :=
-		fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable", user, password, dbname)
+		fmt.Sprintf("host=%s port=%d  user=%s password=%s dbname=%s sslmode=disable", HOST, PORT, user, password, dbname)
 
 	//fmt.Println(user, password, dbname)
 	var err error

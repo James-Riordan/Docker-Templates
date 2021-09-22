@@ -1,16 +1,27 @@
 version: "3.4"
 services:
-  svelte:
-    image: svelte
+  db:
+    image: postgres
+    restart: always
+    env_file:
+      - ./go/.env
+    ports:
+      - "5432:5432"
+
+  go:
+    image: go
     restart: on-failure
+    depends_on: 
+      - db
+    env_file:
+      - ./go/.env
     build:
-      context: ./app
+      context: ./go
       dockerfile: Dockerfile
     ports:
-      - 3000:3000
-    volumes:
-      - ./:/usr/src/app
-      - /usr/src/app/node_modules
+      - 8000:8000
+      
+    
   
   nginx: 
     image: nginx:latest

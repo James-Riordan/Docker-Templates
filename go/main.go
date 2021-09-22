@@ -13,9 +13,9 @@ func main() {
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
-	user := os.Getenv("APP_DB_USERNAME")
-	password := os.Getenv("APP_DB_PASSWORD")
-	dbname := os.Getenv("APP_DB_NAME")
+	user := os.Getenv("POSTGRES_USER")
+	password := os.Getenv("POSTGRES_PASSWORD")
+	dbname := os.Getenv("POSTGRES_DB")
 
 	//a := App{}
 	a := app.App{}
