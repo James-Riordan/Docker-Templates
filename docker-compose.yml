@@ -1,18 +1,15 @@
 version: "3.4"
 services:
-  svelte:
-    image: svelte
+  node:
+    image: node
     restart: on-failure
     build:
-      context: ./app
+      context: ./backend
       dockerfile: Dockerfile
     ports:
-      - 3000:3000
-    volumes:
-      - ./:/usr/src/app
-      - /usr/src/app/node_modules
-  
-  nginx: 
+      - 8000:8000
+
+  nginx:
     image: nginx:latest
     container_name: production_nginx
     volumes:
@@ -20,6 +17,3 @@ services:
     ports:
       - 80:80
       - 443:443
-
-
-
