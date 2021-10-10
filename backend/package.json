@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "tsc && node --unhandled-rejections=strict ./dist/app.js",
+    "start": "nodemon --watch \"*.ts\" --exec \"ts-node\" ./app.ts",
     "build": "tsc --build",
     "debug": "export DEBUG=* && npm run start",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -15,9 +15,11 @@
     "argon2": "^0.28.2",
     "cors": "^2.8.5",
     "debug": "^4.3.1",
+    "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "express-winston": "^4.1.0",
     "mongoose": "^5.12.13",
+    "nodemon": "^2.0.13",
     "shortid": "^2.2.16",
     "winston": "^3.3.3"
   },

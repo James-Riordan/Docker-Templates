@@ -1,8 +1,21 @@
-version: "3.4"
+version: "3.7"
 services:
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    restart: always
+    env_file: .env.docker
+    ports:
+      - 27017:27017
+    volumes:
+      - ~/mongo:/data/db
+
   node:
     image: node
     restart: on-failure
+    depends_on:
+      - mongodb
+    env_file: .env.docker
     build:
       context: ./backend
       dockerfile: Dockerfile

@@ -1,0 +1,10 @@
+get http://localhost:8080/users
+
+###
+post http://localhost:8080/users
+content-type: application/json
+
+{
+    "email": "example@gmail.com",
+    "password": "password123"
+}
