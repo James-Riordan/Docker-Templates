@@ -18,7 +18,7 @@ class RedisService {
   }
   connectWithRetry = () => {
     this.client.on("connect", () => console.log("Redis Connected!"));
-    this.client.on("error", (err) => {
+    this.client.on("error", (err: Error) => {
       const retrySeconds = 5;
       console.log(err);
       log(

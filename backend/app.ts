@@ -1,6 +1,6 @@
 import express from "express";
-
 import * as http from "http";
+import * as redis from "redis";
 
 import * as winston from "winston";
 import * as expressWinston from "express-winston";
@@ -8,6 +8,16 @@ import cors from "cors";
 import { CommonRoutesConfig } from "./routes/common.routes";
 import { UsersRoutes } from "./routes/users.routes";
 import debug from "debug";
+
+const client = redis.createClient({host: 'redis'});
+
+client.on("error", function(err: Error) {
+    console.error("Error encountered: ", err);
+});
+
+client.on("connect", function(err: Error) {
+    console.log("Redis Connection Established...");
+});
 
 const app: express.Application = express();
 const server: http.Server = http.createServer(app);

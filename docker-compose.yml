@@ -10,6 +10,19 @@ services:
     volumes:
       - ~/mongo:/data/db
 
+  redis:
+    image: redis:latest
+    container_name: redis
+    restart: always
+    env_file: .env.docker
+    ports:
+      - 6379:6379
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    volumes:
+      - ./config/redis.conf:/backend/redis/redis.conf
+    command: redis-server
+
   node:
     image: node
     restart: on-failure
