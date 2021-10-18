@@ -5,6 +5,8 @@ import {
   PatchUserDto,
   PutUserDto,
 } from "../interfaces/dtos/user.dtos";
+import redisService from "./redis.service";
+
 class UsersService implements CRUD {
   async create(resource: CreateUserDto) {
     return UsersDao.addUser(resource);
@@ -15,7 +17,20 @@ class UsersService implements CRUD {
   }
 
   async list(limit: number, page: number) {
-    return UsersDao.getUsers(limit, page);
+    let res = await redisService
+      .getRedis()
+      .getAsync("listUsersLimit" + limit + "Page" + page);
+    if (res === null) {
+      res = UsersDao.getUsers(limit, page);
+      redisService
+        .getRedis()
+        .setex(
+          "listUsersLimit" + limit + "Page" + page,
+          3600,
+          JSON.stringify(res)
+        );
+    } else res = JSON.parse(res);
+    return res;
   }
 
   async patchById(id: string, resource: PatchUserDto) {
