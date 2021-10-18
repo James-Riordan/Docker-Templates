@@ -17,20 +17,10 @@ class UsersService implements CRUD {
   }
 
   async list(limit: number, page: number) {
-    let res = await redisService
-      .getRedis()
-      .getAsync("listUsersLimit" + limit + "Page" + page);
-    if (res === null) {
-      res = UsersDao.getUsers(limit, page);
-      redisService
-        .getRedis()
-        .setex(
-          "listUsersLimit" + limit + "Page" + page,
-          3600,
-          JSON.stringify(res)
-        );
-    } else res = JSON.parse(res);
-    return res;
+    return await redisService.getOrSet(
+      "getUsersLimit" + limit + "Page" + page,
+      async () => await UsersDao.getUsers(limit, page)
+    );
   }
 
   async patchById(id: string, resource: PatchUserDto) {
