@@ -12,22 +12,20 @@ services:
 
   redis:
     image: redis:latest
+    env_file: .env.docker
     container_name: redis
     restart: always
-    env_file: .env.docker
     ports:
       - 6379:6379
-    environment:
-      - ALLOW_EMPTY_PASSWORD=yes
     volumes:
       - ./config/redis.conf:/backend/redis/redis.conf
-    command: redis-server
 
   node:
     image: node
     restart: on-failure
     depends_on:
       - mongodb
+      - redis
     env_file: .env.docker
     build:
       context: ./backend

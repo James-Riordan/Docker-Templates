@@ -1,5 +1,4 @@
 import Redis from "ioredis";
-import bluebird from "bluebird";
 import debug from "debug";
 import dotenv from "dotenv";
 
@@ -8,7 +7,7 @@ const log: debug.IDebugger = debug("app:redis-service");
 // bluebird.promisifyAll(redis.RedisClient.prototype);
 
 dotenv.config();
-const { REDIS_MASTER_PASSWORD } = process.env;
+const { REDIS_HOST, REDIS_MASTER_PASSWORD } = process.env;
 
 class RedisService {
   private client: Redis.Redis | undefined;
@@ -22,9 +21,10 @@ class RedisService {
   }
   connectWithRetry = () => {
     this.client = new Redis({
+      host: REDIS_HOST,
       password: REDIS_MASTER_PASSWORD,
     });
-    this.client.on("connect", () => log("Redis Connected!"));
+    this.client.on("connect", () => console.log("Redis Connected!"));
     this.client.on("error", (err: Error) => {
       const retrySeconds = 5;
       console.error(err);
