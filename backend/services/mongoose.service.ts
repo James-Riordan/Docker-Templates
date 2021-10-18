@@ -33,7 +33,6 @@ class MongooseService {
         this.mongooseOptions
       )
       .then(() => {
-        console.log("MONGO");
         log("MongoDB is connected");
       })
       .catch((err) => {
