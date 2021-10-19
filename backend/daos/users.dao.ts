@@ -15,8 +15,8 @@ class UsersDao {
   Schema = mongooseService.getMongoose().Schema;
   userSchema = new this.Schema(
     {
-      _id: String,
-      email: String,
+      _id: { type: String, required: true, unique: true },
+      email: { type: String, required: true, unique: true },
       password: { type: String, select: false },
       firstName: String,
       lastName: String,
@@ -25,6 +25,7 @@ class UsersDao {
     { id: false }
   );
   User = mongooseService.getMongoose().model("Users", this.userSchema);
+  uniqueFields: Array<string> = ["_id", "email"];
 
   constructor() {
     log("Created new instance of UsersDao");
@@ -38,7 +39,7 @@ class UsersDao {
       permissionFlags: 1,
     });
     await user.save();
-    return userId;
+    return await this.getUserById(userId);
   }
 
   async getUserByEmail(email: string) {

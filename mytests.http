@@ -5,6 +5,20 @@ post http://localhost:8080/users
 content-type: application/json
 
 {
-    "email": "example@gmail.com",
+    "email": "example3@gmail.com",
     "password": "password123"
 }
+
+###
+patch http://localhost:8080/users/8Dq5krrp-
+content-type: application/json
+
+{
+    "passworrd": "password124"
+}
+
+
+###
+get http://localhost:8080/users/8Dq5krrp-
+###
+delete http://localhost:8080/users/WUIBMGOM7
