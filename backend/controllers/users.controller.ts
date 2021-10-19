@@ -8,6 +8,7 @@ import debug from "debug";
 
 const log: debug.IDebugger = debug("app:users-controller");
 class UsersController {
+  // TODO need to handle errors and add auth
   async listUsers(req: express.Request, res: express.Response) {
     const users = await usersService.list(100, 0);
     res.status(200).send(users);
@@ -29,6 +30,7 @@ class UsersController {
       req.body.password = await argon2.hash(req.body.password);
     }
     log(await usersService.patchById(req.body.id, req.body));
+    //204 no content
     res.status(204).send();
   }
 
