@@ -18,7 +18,7 @@ services:
     ports:
       - 6379:6379
     volumes:
-      - ./config/redis.conf:/backend/redis/redis.conf
+      - ./config/redis.conf:/backend/config/redis.conf
 
   node:
     image: node

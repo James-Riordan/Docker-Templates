@@ -1,11 +1,17 @@
+import * as bcrypt from "bcrypt";
+import * as jwt from "jwt-then";
+import dotenv from "dotenv";
 import UsersDao from "../daos/users.dao";
 import { CRUD } from "../interfaces/crud.interface";
+import redisService from "./redis.service";
+
 import {
   CreateUserDto,
   PatchUserDto,
   PutUserDto,
 } from "../interfaces/dtos/user.dtos";
-import redisService from "./redis.service";
+
+const { HASH_KEY } = process.env;
 
 class UsersService implements CRUD {
   async create(resource: CreateUserDto) {
@@ -65,6 +71,29 @@ class UsersService implements CRUD {
       "user"
     );
   }
+
+  /*---------------------AUTHENTICATION-------------------------- */
+  async login(email: string, password: string) {
+    let user = await UsersDao.getUserByEmail(email);
+    if (user) {
+      let match = await bcrypt.compare(password, user.password);
+      if (match) {
+        let token = await jwt.sign(
+          {
+            email: user.email,
+          },
+          HASH_KEY,
+          {
+            expiresIn: "1d",
+          }
+        );
+        return `Bearer ${token}`;
+      } else throw new Error("Incorrect password");
+    } else throw new Error("User of this name/email cannot be found");
+  }
+  async createSession() {}
+
+  async getSession(token: String) {}
 }
 
 export default new UsersService();
