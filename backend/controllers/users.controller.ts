@@ -1,13 +1,37 @@
 import express from "express";
 
 import usersService from "../services/users.service";
+import UsersDao from "../daos/users.dao";
 
 import argon2 from "argon2";
 
 import debug from "debug";
 
 const log: debug.IDebugger = debug("app:users-controller");
+const UserGQL = UsersDao.UserGQL;
+
 class UsersController {
+  UserQuery = {
+    userById: UserGQL.getResolver("findById"),
+    userByIds: UserGQL.getResolver("findByIds"),
+    userOne: UserGQL.getResolver("findOne"),
+    userMany: UserGQL.getResolver("findMany"),
+    userCount: UserGQL.getResolver("count"),
+    userConnection: UserGQL.getResolver("connection"),
+    userPagination: UserGQL.getResolver("pagination"),
+  };
+  UserMutation = {
+    userCreateOn: UserGQL.getResolver("createOne"),
+    userCreateMany: UserGQL.getResolver("createMany"),
+    userUpdateById: UserGQL.getResolver("updateById"),
+    userUpdateOne: UserGQL.getResolver("updateOne"),
+    userUpdateMany: UserGQL.getResolver("updateMany"),
+    userRemoveById: UserGQL.getResolver("removeById"),
+    userRemoveOne: UserGQL.getResolver("removeOne"),
+    userRemoveMany: UserGQL.getResolver("removeMany"),
+  };
+  //    fakeData: UserGQL.getResolver("user"),
+
   async listUsers(req: express.Request, res: express.Response) {
     const users = await usersService.list(100, 0);
     res.status(200).send(users);

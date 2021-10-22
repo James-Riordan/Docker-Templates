@@ -5,6 +5,7 @@ import {
 } from "../interfaces/dtos/user.dtos";
 import mongooseService from "../services/mongoose.service";
 
+import { composeWithMongoose } from "graphql-compose-mongoose";
 import shortid from "shortid";
 import debug from "debug";
 
@@ -25,6 +26,7 @@ class UsersDao {
     { id: false }
   );
   User = mongooseService.getMongoose().model("Users", this.userSchema);
+  UserGQL = composeWithMongoose(this.User);
 
   constructor() {
     log("Created new instance of UsersDao");

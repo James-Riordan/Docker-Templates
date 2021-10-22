@@ -1,22 +1,24 @@
 import express from "express";
 import * as http from "http";
 import * as redis from "redis";
-
+import { graphqlHTTP } from "express-graphql";
 import * as winston from "winston";
 import * as expressWinston from "express-winston";
 import cors from "cors";
-import { CommonRoutesConfig } from "./routes/common.routes";
-import { UsersRoutes } from "./routes/users.routes";
 import debug from "debug";
 
-const client = redis.createClient({host: 'redis'});
+import { CommonRoutesConfig } from "./routes/common.routes";
+import { UsersRoutes } from "./routes/users.routes";
+import graphqlSchema from "./services/gql.service";
 
-client.on("error", function(err: Error) {
-    console.error("Error encountered: ", err);
+const client = redis.createClient({ host: "redis" });
+
+client.on("error", function (err: Error) {
+  console.error("Error encountered: ", err);
 });
 
-client.on("connect", function(err: Error) {
-    console.log("Redis Connection Established...");
+client.on("connect", function (err: Error) {
+  console.log("Redis Connection Established...");
 });
 
 const app: express.Application = express();
@@ -53,6 +55,18 @@ app.get("/", (req: express.Request, res: express.Response) => {
 app.get("/store/:key", (req: express.Request, res: express.Response) => {
   res.status(200).send(runningMessage);
 });
+
+app.use(
+  "/graphql",
+  graphqlHTTP((request) => {
+    return {
+      context: { startTime: Date.now() },
+      graphiql: true,
+      schema: graphqlSchema,
+      //extensions
+    };
+  })
+);
 
 server.listen(port, () => {
   routes.forEach((route: CommonRoutesConfig) => {
