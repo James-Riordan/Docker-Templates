@@ -12,7 +12,7 @@ import { CommonRoutesConfig } from "./routes/common.routes";
 import { UsersRoutes } from "./routes/users.routes";
 import debug from "debug";
 
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 8000;
 
 const loggerOptions: expressWinston.LoggerOptions = {
   transports: [new winston.transports.Console()],
@@ -32,41 +32,25 @@ async function startApolloServer(typeDefs: any, resolvers: any) {
   app.use(expressWinston.logger(loggerOptions));
   app.use(express.json());
   app.use(cors());
-  const httpServer = http.createServer(app);
+  const routes: Array<CommonRoutesConfig> = [];
+  const userRoutes = new UsersRoutes(app);
+  routes.push(userRoutes);
   const server = new ApolloServer({
     typeDefs,
     resolvers,
-    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
   });
   await server.start();
-  server.applyMiddleware({ app });
+  server.applyMiddleware({ app, path: "/graphql" });
   await new Promise<void>((resolve) =>
-    httpServer.listen({ port: PORT }, resolve)
+    app.listen({ port: PORT }, resolve)
   );
-  console.log(
+  const runningMessage=(
     `🚀 Server ready at http://localhost:${PORT}${server.graphqlPath}`
   );
+  console.log(runningMessage)
+  app.get("/", (req: express.Request, res: express.Response) => {
+    res.status(200).send(runningMessage);
+  });
 }
 
 startApolloServer(typeDefs, resolvers);
-
-// const routes: Array<CommonRoutesConfig> = [];
-// const debugLog: debug.IDebugger = debug("app");
-
-// routes.push(new UsersRoutes(app));
-
-// const runningMessage = `Server running at http://localhost:${port}`;
-// app.get("/", (req: express.Request, res: express.Response) => {
-//   res.status(200).send(runningMessage);
-// });
-
-// app.get("/store/:key", (req: express.Request, res: express.Response) => {
-//   res.status(200).send(runningMessage);
-// });
-
-// server.listen(port, () => {
-//   routes.forEach((route: CommonRoutesConfig) => {
-//     debugLog(`Routes configured for ${route.getName()}`);
-//   });
-//   console.log(runningMessage);
-// });

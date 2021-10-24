@@ -1,11 +1,12 @@
-get http://localhost:8080/users
+get http://localhost:8000/users
+authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImV4YW1wbGU5QGdtYWlsLmNvbSIsImlhdCI6MTYzNTA5NTAzOSwiZXhwIjoxNjM1MTgxNDM5fQ.cFJxpQmdETyhxVrfigmwG_yv5zW2QiOuzRTxsbRjHqI
 
 ###
-post http://localhost:8080/users
+post http://localhost:8000/users
 content-type: application/json
 
 {
-    "email": "example3@gmail.com",
+    "email": "example18@gmail.com",
     "password": "password123"
 }
 
@@ -14,7 +15,7 @@ patch http://localhost:8080/users/8Dq5krrp-
 content-type: application/json
 
 {
-    "passworrd": "password124"
+    "password": "password124"
 }
 
 
@@ -22,3 +23,12 @@ content-type: application/json
 get http://localhost:8080/users/8Dq5krrp-
 ###
 delete http://localhost:8080/users/WUIBMGOM7
+
+###
+post http://localhost:8000/login
+content-type: application/json
+
+{
+    "email": "example13@gmail.com",
+    "password": "password123"
+}

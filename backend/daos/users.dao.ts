@@ -8,14 +8,15 @@ import mongooseService from "../services/mongoose.service";
 import shortid from "shortid";
 import debug from "debug";
 
-const log: debug.IDebugger = debug("app:in-memory-dao");
+import * as bcrypt from "bcrypt"
 
+const log: debug.IDebugger = debug("app:in-memory-dao");
 class UsersDao {
   users: Array<CreateUserDto> = [];
   Schema = mongooseService.getMongoose().Schema;
   userSchema = new this.Schema(
     {
-      _id: { type: String, required: true, unique: true },
+      _id: { type: String },
       email: { type: String, required: true, unique: true },
       password: { type: String, select: false },
       firstName: String,
@@ -24,11 +25,20 @@ class UsersDao {
     },
     { id: false }
   );
-  User = mongooseService.getMongoose().model("Users", this.userSchema);
   uniqueFields: Array<string> = ["_id", "email"];
-
+  User: any = undefined
   constructor() {
     log("Created new instance of UsersDao");
+
+    this.userSchema.pre('save', async function(next){
+      let user:any = this;
+      // only hash the password if it has been modified (or is new)
+      if (!user.isModified('password')) return next();
+      user.password = await bcrypt.hash(user.password, 10);
+      next()
+
+    })
+    this.User = mongooseService.getMongoose().model("Users", this.userSchema);
   }
 
   async addUser(userFields: CreateUserDto) {
@@ -42,8 +52,8 @@ class UsersDao {
     return await this.getUserById(userId);
   }
 
-  async getUserByEmail(email: string) {
-    return this.User.findOne({ email: email }).exec();
+  async getUserByEmail(email: string, getPassword?:boolean) {
+    return this.User.findOne({ email: email }).select(getPassword?'+password':'').exec();
   }
 
   async getUserById(userId: string) {

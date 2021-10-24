@@ -11,7 +11,7 @@ export class UsersRoutes extends CommonRoutesConfig {
   configureRoutes(): express.Application {
     this.app
       .route(`/users`)
-      .get(UsersController.listUsers)
+      .get(UsersMiddleware.authenticateUser,UsersController.listUsers)
       .post(
         UsersMiddleware.validateRequiredUserBodyFields,
         UsersMiddleware.validateSameEmailDoesntExist,
@@ -35,6 +35,11 @@ export class UsersRoutes extends CommonRoutesConfig {
       UsersMiddleware.validatePatchEmail,
       UsersController.patch,
     ]);
+
+    this.app
+      .post(`/login`, [
+        UsersController.login,
+      ])
 
     return this.app;
   }
