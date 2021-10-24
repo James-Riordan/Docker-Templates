@@ -71,29 +71,31 @@ class UsersService implements CRUD {
       "user"
     );
   }
-
-  /*---------------------AUTHENTICATION-------------------------- */
-  async login(email: string, password: string) {
-    let user = await UsersDao.getUserByEmail(email);
-    if (user) {
-      let match = await bcrypt.compare(password, user.password);
-      if (match) {
-        let token = await jwt.sign(
-          {
-            email: user.email,
-          },
-          HASH_KEY,
-          {
-            expiresIn: "1d",
-          }
-        );
-        return `Bearer ${token}`;
-      } else throw new Error("Incorrect password");
-    } else throw new Error("User of this name/email cannot be found");
-  }
-  async createSession() {}
-
-  async getSession(token: String) {}
 }
 
 export default new UsersService();
+
+  /*---------------------AUTHENTICATION-------------------------- */
+//   async login(email: string, password: string) {
+//     let user = await UsersDao.getUserByEmail(email);
+//     if (user) {
+//       let match = await bcrypt.compare(password, user.password);
+//       if (match) {
+//         let token = await jwt.sign(
+//           {
+//             email: user.email,
+//           },
+//           HASH_KEY,
+//           {
+//             expiresIn: "1d",
+//           }
+//         );
+//         return `Bearer ${token}`;
+//       } else throw new Error("Incorrect password");
+//     } else throw new Error("User of this name/email cannot be found");
+//   }
+//   async createSession() {}
+
+//   async getSession(token: String) {}
+// }
+
