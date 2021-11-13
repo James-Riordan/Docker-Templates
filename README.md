@@ -7,3 +7,6 @@ Current Branch:
 - MongoDB
 - Redis
 - GraphQL
+- Kubernetes
+- Terraform
+- Jenkins
