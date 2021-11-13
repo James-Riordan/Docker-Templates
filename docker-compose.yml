@@ -44,3 +44,23 @@ services:
     ports:
       - 80:80
       - 443:443
+  
+  jenkins: 
+    image: jenkins/jenkins
+    container_name: jenkins
+    ports:
+      - 8080:8080
+      - 50000:50000
+    volumes:
+      - ./config/data/jenkins:/var/jenkins_home
+  
+  terraform: 
+    image: hashicorp/terraform:latest
+    container_name: terraform
+    volumes:
+      - ./config/terraform:/infra
+    environment:
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN}
+     
