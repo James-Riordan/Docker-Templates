@@ -12,22 +12,20 @@ services:
 
   redis:
     image: redis:latest
-    container_name: redis
-    restart: always
     env_file: .env.docker
+    container_name: redis
+    restart: on-failure
     ports:
       - 6379:6379
-    environment:
-      - ALLOW_EMPTY_PASSWORD=yes
     volumes:
-      - ./config/redis.conf:/backend/redis/redis.conf
-    command: redis-server
+      - ./config/redis.conf:/backend/config/redis.conf
 
   node:
     image: node
     restart: on-failure
     depends_on:
       - mongodb
+      - redis
     env_file: .env.docker
     build:
       context: ./backend
@@ -38,6 +36,9 @@ services:
   nginx:
     image: nginx:latest
     container_name: production_nginx
+    env_file: .env.docker
+    depends_on:
+      - node
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
     ports:

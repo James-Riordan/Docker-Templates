@@ -1,5 +1,4 @@
 export interface CreateUserDto {
-  id: string;
   email: string;
   password: string;
   firstName?: string;
@@ -8,7 +7,6 @@ export interface CreateUserDto {
 }
 
 export interface PutUserDto {
-  id: string;
   email: string;
   password: string;
   firstName: string;
@@ -17,3 +15,11 @@ export interface PutUserDto {
 }
 
 export interface PatchUserDto extends Partial<PutUserDto> {}
+
+export interface UserTokenDto {
+  _id: string;
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  permissionLevel?: number;
+}

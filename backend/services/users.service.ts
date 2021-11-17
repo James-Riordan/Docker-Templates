@@ -1,53 +1,96 @@
+import * as bcrypt from "bcrypt";
+import * as jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+//import { UserInputError } from "apollo-server-express";
+
 import UsersDao from "../daos/users.dao";
 import { CRUD } from "../interfaces/crud.interface";
+import redisService from "./redis.service";
+
 import {
   CreateUserDto,
   PatchUserDto,
   PutUserDto,
 } from "../interfaces/dtos/user.dtos";
-import redisService from "./redis.service";
+
+const { HASH_KEY, JWT_KEY } = process.env;
 
 class UsersService implements CRUD {
   async create(resource: CreateUserDto) {
-    return UsersDao.addUser(resource);
-  }
-
-  async deleteById(id: string) {
-    return UsersDao.removeUserById(id);
-  }
-
-  async list(limit: number, page: number) {
-    let res = await redisService
-      .getRedis()
-      .getAsync("listUsersLimit" + limit + "Page" + page);
-    if (res === null) {
-      res = UsersDao.getUsers(limit, page);
-      redisService
-        .getRedis()
-        .setex(
-          "listUsersLimit" + limit + "Page" + page,
-          3600,
-          JSON.stringify(res)
-        );
-    } else res = JSON.parse(res);
+    const res = await UsersDao.addUser(resource);
+    redisService.setIdentifiers(res, UsersDao.uniqueFields, "user");
     return res;
   }
 
-  async patchById(id: string, resource: PatchUserDto) {
-    return UsersDao.updateUserById(id, resource);
+  async list(limit: number, page: number) {
+    return await redisService.getOrSetPlural(
+      `users limit ${limit} page ${page}`,
+      async () => await UsersDao.getUsers(limit, page),
+      UsersDao.uniqueFields,
+      "user"
+    );
+  }
+
+  async deleteById(id: string) {
+    redisService.deleteBy(
+      `user _id ${id}`,
+      UsersDao.uniqueFields,
+      "user",
+      "users"
+    );
+    const res = await UsersDao.removeUserById(id);
+    if (res.deletedCount == 1) return "Success";
+    else return "Failure";
   }
 
   async readById(id: string) {
-    return UsersDao.getUserById(id);
+    return await redisService.getOrSetSingular(
+      `user _id ${id}`,
+      async () => await UsersDao.getUserById(id),
+      UsersDao.uniqueFields,
+      "user"
+    );
   }
 
-  async putById(id: string, resource: PutUserDto) {
-    return UsersDao.updateUserById(id, resource);
+  async updateById(id: string, resource: PatchUserDto) {
+    redisService.deletePrefix("users");
+    const res = await UsersDao.updateUserById(id, resource);
+    redisService.setIdentifiers(res, UsersDao.uniqueFields, "user");
+    return res;
   }
-
   async getUserByEmail(email: string) {
-    return UsersDao.getUserByEmail(email);
+    return await redisService.getOrSetSingular(
+      `user email ${email}`,
+      async () => await UsersDao.getUserByEmail(email),
+      UsersDao.uniqueFields,
+      "user"
+    );
   }
+
+  /*---------------------AUTHENTICATION-------------------------- */
+  async login(email: string, password: string) {
+    let user = await UsersDao.getUserByEmail(email, true);
+    if (user) {
+      let hashedPassword = await bcrypt.hash(password, HASH_KEY!);
+      let match = hashedPassword == user.password;
+      if (match) {
+        let token = await jwt.sign(
+          {
+            email: user.email,
+            _id: user._id,
+          },
+          JWT_KEY!,
+          {
+            expiresIn: "1d",
+          }
+        );
+        return token;
+      } else throw new Error("Incorrect password");
+    } else throw new Error("User of this name/email cannot be found");
+  }
+  async createSession() {}
+
+  async getSession(token: String) {}
 }
 
 export default new UsersService();
