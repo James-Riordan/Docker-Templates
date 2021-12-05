@@ -1,11 +1,8 @@
 import express from "express";
 import userService from "../services/users.service";
 import debug from "debug";
-import * as jwt from "jsonwebtoken";
 
 const log: debug.IDebugger = debug("app:users-controller");
-const { HASH_KEY } = process.env;
-
 class UsersMiddleware {
   async extractUserId(
     req: express.Request,
@@ -81,27 +78,6 @@ class UsersMiddleware {
     } else {
       res.status(404).send({
         error: `User ${req.params.userId} not found`,
-      });
-    }
-  }
-
-  async authenticateUser(
-    req: express.Request,
-    res: express.Response,
-    next: express.NextFunction
-  ) {
-    const token = req.headers.authorization;
-    try {
-      const data:any =  await jwt.verify(token!, HASH_KEY!);
-      const user = await userService.getUserByEmail(data.email);
-      if (user) next();
-      else
-        res.status(401).send({
-          error: "User doesn't exist.",
-        });
-    } catch {
-      res.status(401).send({
-        error: "Authorization failed.",
       });
     }
   }

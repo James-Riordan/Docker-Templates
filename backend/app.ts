@@ -1,56 +1,102 @@
-import { ApolloServer } from "apollo-server-express";
-import { ApolloServerPluginDrainHttpServer } from "apollo-server-core";
-import typeDefs from "./GQL/typedefs";
-import resolvers from "./GQL/resolvers";
 import express from "express";
-import http from "http";
+import { ApolloServer } from "apollo-server-express";
+import { ApolloError } from "apollo-server-errors";
+
+import { BaseRedisCache } from "apollo-server-cache-redis";
 
 import * as winston from "winston";
 import * as expressWinston from "express-winston";
 import cors from "cors";
+import debug from "debug";
+import * as jwt from "jsonwebtoken";
+
 import { CommonRoutesConfig } from "./routes/common.routes";
 import { UsersRoutes } from "./routes/users.routes";
-import debug from "debug";
+import graphqlSchema from "./services/gql.service";
+import redisService from "./services/redis.service";
+import userService from "./services/users.service";
+import "./interfaces/express.interface";
+import { UserTokenDto } from "./interfaces/dtos/user.dtos";
 
-const PORT = process.env.PORT || 8000;
+const { JWT_KEY } = process.env;
 
-const loggerOptions: expressWinston.LoggerOptions = {
-  transports: [new winston.transports.Console()],
-  format: winston.format.combine(
-    winston.format.json(),
-    winston.format.prettyPrint(),
-    winston.format.colorize({ all: true })
-  ),
-};
+class App {
+  app: express.Application = express();
+  server = new ApolloServer({
+    typeDefs: graphqlSchema.schema,
+    resolvers: graphqlSchema.resolvers,
+    cache: new BaseRedisCache({ client: redisService.getRedis() }),
+    formatError: (err) => {
+      let message = err.message;
+      let code = "406";
+      if (message.startsWith("E")) {
+        // internal mongo error
+        message = "Internal server error";
+        code = "500";
+      } else if (message == "Unauthorized") code = "401";
+      return new ApolloError(message, code);
+    },
+    context: async ({ req }) => {
+      const token = req.headers.authorization || "";
+      try {
+        let user: UserTokenDto = <UserTokenDto>jwt.verify(token, JWT_KEY!);
+        if (await userService.readById(user._id)) return { user };
+      } catch (e) {}
+    },
+  });
+  runInstance: import("http").Server | null = null;
+  constructor() {
+    const routes: Array<CommonRoutesConfig> = [];
+    const userRoutes = new UsersRoutes(this.app);
+    routes.push(userRoutes);
 
-if (!process.env.DEBUG) {
-  loggerOptions.meta = false;
+    this.server
+      .start()
+      .then(() => this.server.applyMiddleware({ app: this.app }));
+
+    const port = process.env.PORT || 8080;
+
+    const debugLog: debug.IDebugger = debug("app");
+
+    this.app.use(express.json());
+    this.app.use(cors());
+
+    const loggerOptions: expressWinston.LoggerOptions = {
+      transports: [new winston.transports.Console()],
+      format: winston.format.combine(
+        winston.format.json(),
+        winston.format.prettyPrint(),
+        winston.format.colorize({ all: true })
+      ),
+    };
+
+    if (!process.env.DEBUG) {
+      loggerOptions.meta = false;
+    }
+
+    this.app.use(expressWinston.logger(loggerOptions));
+
+    //this.app.use(AuthMiddleware.isAuth);
+
+    const runningMessage = `Server running at http://localhost:${port}`;
+    this.app.get("/", (req: express.Request, res: express.Response) => {
+      res.status(200).send(runningMessage);
+    });
+
+    this.app.get(
+      "/store/:key",
+      (req: express.Request, res: express.Response) => {
+        res.status(200).send(runningMessage);
+      }
+    );
+
+    this.runInstance = this.app.listen(port, () => {
+      routes.forEach((route: CommonRoutesConfig) => {
+        debugLog(`Routes configured for ${route.getName()}`);
+      });
+      console.log(runningMessage);
+    });
+  }
 }
 
-async function startApolloServer(typeDefs: any, resolvers: any) {
-  const app: express.Application = express();
-  app.use(expressWinston.logger(loggerOptions));
-  app.use(express.json());
-  app.use(cors());
-  const routes: Array<CommonRoutesConfig> = [];
-  const userRoutes = new UsersRoutes(app);
-  routes.push(userRoutes);
-  const server = new ApolloServer({
-    typeDefs,
-    resolvers,
-  });
-  await server.start();
-  server.applyMiddleware({ app, path: "/graphql" });
-  await new Promise<void>((resolve) =>
-    app.listen({ port: PORT }, resolve)
-  );
-  const runningMessage=(
-    `🚀 Server ready at http://localhost:${PORT}${server.graphqlPath}`
-  );
-  console.log(runningMessage)
-  app.get("/", (req: express.Request, res: express.Response) => {
-    res.status(200).send(runningMessage);
-  });
-}
-
-startApolloServer(typeDefs, resolvers);
+export default new App();

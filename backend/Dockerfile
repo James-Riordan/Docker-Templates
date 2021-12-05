@@ -8,7 +8,7 @@ RUN npm i
 
 COPY . .
 
-RUN npm install argon2 --build-from-source
+RUN npm rebuild argon2 --build-from-source
 
 RUN npm run build
 

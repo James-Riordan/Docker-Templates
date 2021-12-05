@@ -1,17 +1,18 @@
 import { CommonRoutesConfig } from "./common.routes";
-import UsersController from "../controllers/users.controller";
+import UsersController from "../controllers/express/users.exp.controller";
 import UsersMiddleware from "../middleware/users.middleware";
+import UsersDao from "../daos/users.dao";
+
 import express from "express";
 
 export class UsersRoutes extends CommonRoutesConfig {
   constructor(app: express.Application) {
     super(app, "UsersRoutes");
   }
-
   configureRoutes(): express.Application {
     this.app
       .route(`/users`)
-      .get(UsersMiddleware.authenticateUser,UsersController.listUsers)
+      .get(UsersController.listUsers)
       .post(
         UsersMiddleware.validateRequiredUserBodyFields,
         UsersMiddleware.validateSameEmailDoesntExist,
@@ -35,11 +36,6 @@ export class UsersRoutes extends CommonRoutesConfig {
       UsersMiddleware.validatePatchEmail,
       UsersController.patch,
     ]);
-
-    this.app
-      .post(`/login`, [
-        UsersController.login,
-      ])
 
     return this.app;
   }

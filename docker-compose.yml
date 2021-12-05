@@ -20,8 +20,8 @@ services:
     volumes:
       - ./config/redis.conf:/backend/config/redis.conf
 
-  node:
-    image: node
+  backend:
+    image: backend:latest
     restart: on-failure
     depends_on:
       - mongodb
@@ -38,7 +38,7 @@ services:
     container_name: production_nginx
     env_file: .env.docker
     depends_on:
-      - node
+      - backend
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
     ports:
@@ -54,13 +54,13 @@ services:
     volumes:
       - ./config/data/jenkins:/var/jenkins_home
   
-  terraform: 
-    image: hashicorp/terraform:latest
-    container_name: terraform
-    volumes:
-      - ./config/terraform:/infra
-    environment:
-      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-      - AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN}
+  # terraform: 
+  #   image: hashicorp/terraform:latest
+  #   container_name: terraform
+  #   volumes:
+  #     - ./config/terraform:/infra
+  #   environment:
+  #     - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+  #     - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+  #     - AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN}
      

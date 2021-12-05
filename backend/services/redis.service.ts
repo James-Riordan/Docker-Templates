@@ -23,9 +23,9 @@ class RedisService {
     });
     this.client.on("connect", () => log("Redis Connected!"));
   }
-  /*getRedis(): Redis.Redis {
+  getRedis(): Redis.Redis {
     return this.client;
-  }*/
+  }
 
   async get(key: string): Promise<any> {
     let res = await this.client.get(key);
