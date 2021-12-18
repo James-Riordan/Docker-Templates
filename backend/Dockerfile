@@ -1,12 +1,14 @@
 FROM node:14 as base
 
+RUN mkdir -p /app
+
+COPY package*.json /app/
+
+COPY . /app/
+
 WORKDIR /app
 
-COPY package*.json ./
-
 RUN npm i
-
-COPY . .
 
 RUN npm rebuild argon2 --build-from-source
 
