@@ -1,0 +1,14 @@
+- apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: mongo-configmap
+    data:
+      DB_HOST: mongodb
+      DB_NAME: admin
+      DB_PASS: app_password
+      DB_PORT: "27017"
+      DB_USER: app_user
+      HASH_KEY: 78:5f:4d:4e:a8:6a
+      MONGO_INITDB_DATABASE: admin
+      MONGO_INITDB_ROOT_PASSWORD: app_password
+      MONGO_INITDB_ROOT_USERNAME: app_user

@@ -1,0 +1,54 @@
+- apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: jenkins-deployment
+      labels:
+        app: jenkins
+    spec:
+      replicas: 2
+      selector:
+        matchLabels:
+          app: jenkins
+      strategy:
+        type: Recreate
+      template:
+        metadata:
+          labels:
+            app: jenkins
+        spec:
+          containers:
+            - name: jenkins
+              image: jenkins/jenkins
+              ports:
+                - containerPort: 8080
+                - containerPort: 50000
+              resources: {}
+              volumeMounts:
+                - mountPath: /var/jenkins_home
+                  name: jenkins-claim0
+          restartPolicy: Always
+          volumes:
+            - name: jenkins-claim0
+              persistentVolumeClaim:
+                claimName: jenkins-claim0
+    status: {}
+
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: jenkins-deployment
+#   labels:
+#     app: jenkins
+# spec:
+#   replicas: 2
+#   selector:
+#     matchLabels:
+#       app: jenkins
+#   template:
+#     metadata:
+#       labels:
+#         app: jenkins
+#     spec:
+#       containers:
+#       - name: jenkins
+#         image: jenkins/jenkins

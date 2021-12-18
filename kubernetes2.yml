@@ -1,0 +1,632 @@
+apiVersion: v1
+items:
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -o kubernetes2.yml
+        kompose.version: 1.25.0 (HEAD)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: jenkins
+      name: jenkins
+    spec:
+      ports:
+        - name: "8080"
+          port: 8080
+          targetPort: 8080
+        - name: "50000"
+          port: 50000
+          targetPort: 50000
+      selector:
+        io.kompose.service: jenkins
+    status:
+      loadBalancer: {}
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -o kubernetes2.yml
+        kompose.version: 1.25.0 (HEAD)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: mongodb
+      name: mongodb
+    spec:
+      ports:
+        - name: "27017"
+          port: 27017
+          targetPort: 27017
+      selector:
+        io.kompose.service: mongodb
+    status:
+      loadBalancer: {}
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -o kubernetes2.yml
+        kompose.version: 1.25.0 (HEAD)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: nginx
+      name: nginx
+    spec:
+      ports:
+        - name: "80"
+          port: 80
+          targetPort: 80
+        - name: "443"
+          port: 443
+          targetPort: 443
+      selector:
+        io.kompose.service: nginx
+    status:
+      loadBalancer: {}
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -o kubernetes2.yml
+        kompose.version: 1.25.0 (HEAD)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: node
+      name: node
+    spec:
+      ports:
+        - name: "8000"
+          port: 8000
+          targetPort: 8000
+      selector:
+        io.kompose.service: node
+    status:
+      loadBalancer: {}
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -o kubernetes2.yml
+        kompose.version: 1.25.0 (HEAD)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: redis
+      name: redis
+    spec:
+      ports:
+        - name: "6379"
+          port: 6379
+          targetPort: 6379
+      selector:
+        io.kompose.service: redis
+    status:
+      loadBalancer: {}
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -o kubernetes2.yml
+        kompose.version: 1.25.0 (HEAD)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: jenkins
+      name: jenkins
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          io.kompose.service: jenkins
+      strategy:
+        type: Recreate
+      template:
+        metadata:
+          annotations:
+            kompose.cmd: kompose convert -o kubernetes2.yml
+            kompose.version: 1.25.0 (HEAD)
+          creationTimestamp: null
+          labels:
+            io.kompose.service: jenkins
+        spec:
+          containers:
+            - image: jenkins/jenkins
+              name: jenkins
+              ports:
+                - containerPort: 8080
+                - containerPort: 50000
+              resources: {}
+              volumeMounts:
+                - mountPath: /var/jenkins_home
+                  name: jenkins-claim0
+          restartPolicy: Always
+          volumes:
+            - name: jenkins-claim0
+              persistentVolumeClaim:
+                claimName: jenkins-claim0
+    status: {}
+  - apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: jenkins-claim0
+      name: jenkins-claim0
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 100Mi
+    status: {}
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -o kubernetes2.yml
+        kompose.version: 1.25.0 (HEAD)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: mongodb
+      name: mongodb
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          io.kompose.service: mongodb
+      strategy:
+        type: Recreate
+      template:
+        metadata:
+          annotations:
+            kompose.cmd: kompose convert -o kubernetes2.yml
+            kompose.version: 1.25.0 (HEAD)
+          creationTimestamp: null
+          labels:
+            io.kompose.service: mongodb
+        spec:
+          containers:
+            - env:
+                - name: DB_HOST
+                  valueFrom:
+                    configMapKeyRef:
+                      key: DB_HOST
+                      name: env-docker
+                - name: DB_NAME
+                  valueFrom:
+                    configMapKeyRef:
+                      key: DB_NAME
+                      name: env-docker
+                - name: DB_PASS
+                  valueFrom:
+                    configMapKeyRef:
+                      key: DB_PASS
+                      name: env-docker
+                - name: DB_PORT
+                  valueFrom:
+                    configMapKeyRef:
+                      key: DB_PORT
+                      name: env-docker
+                - name: DB_USER
+                  valueFrom:
+                    configMapKeyRef:
+                      key: DB_USER
+                      name: env-docker
+                - name: HASH_KEY
+                  valueFrom:
+                    configMapKeyRef:
+                      key: HASH_KEY
+                      name: env-docker
+                - name: MONGO_INITDB_DATABASE
+                  valueFrom:
+                    configMapKeyRef:
+                      key: MONGO_INITDB_DATABASE
+                      name: env-docker
+                - name: MONGO_INITDB_ROOT_PASSWORD
+                  valueFrom:
+                    configMapKeyRef:
+                      key: MONGO_INITDB_ROOT_PASSWORD
+                      name: env-docker
+                - name: MONGO_INITDB_ROOT_USERNAME
+                  valueFrom:
+                    configMapKeyRef:
+                      key: MONGO_INITDB_ROOT_USERNAME
+                      name: env-docker
+                - name: REDIS_HOST
+                  valueFrom:
+                    configMapKeyRef:
+                      key: REDIS_HOST
+                      name: env-docker
+                - name: REDIS_MASTER_PASSWORD
+                  valueFrom:
+                    configMapKeyRef:
+                      key: REDIS_MASTER_PASSWORD
+                      name: env-docker
+              image: mongo:latest
+              name: mongodb
+              ports:
+                - containerPort: 27017
+              resources: {}
+              volumeMounts:
+                - mountPath: /data/db
+                  name: mongo-claim0
+          restartPolicy: Always
+          volumes:
+            - name: mongo-claim0
+              persistentVolumeClaim:
+                claimName: mongo-claim0
+    status: {}
+  - apiVersion: v1
+    kind: ConfigMap
+    data:
+      DB_HOST: mongodb
+      DB_NAME: admin
+      DB_PASS: app_password
+      DB_PORT: "27017"
+      DB_USER: app_user
+      HASH_KEY: 78:5f:4d:4e:a8:6a
+      MONGO_INITDB_DATABASE: admin
+      MONGO_INITDB_ROOT_PASSWORD: app_password
+      MONGO_INITDB_ROOT_USERNAME: app_user
+      REDIS_HOST: redis
+      REDIS_MASTER_PASSWORD: my_master_password
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: mongodb-env-docker
+      name: env-docker
+  - apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: mongo-claim0
+      name: mongo-claim0
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 100Mi
+    status: {}
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -o kubernetes2.yml
+        kompose.version: 1.25.0 (HEAD)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: nginx
+      name: nginx
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          io.kompose.service: nginx
+      strategy:
+        type: Recreate
+      template:
+        metadata:
+          annotations:
+            kompose.cmd: kompose convert -o kubernetes2.yml
+            kompose.version: 1.25.0 (HEAD)
+          creationTimestamp: null
+          labels:
+            io.kompose.service: nginx
+        spec:
+          containers:
+            - env:
+                - name: DB_HOST
+                  valueFrom:
+                    configMapKeyRef:
+                      key: DB_HOST
+                      name: env-docker
+                - name: DB_NAME
+                  valueFrom:
+                    configMapKeyRef:
+                      key: DB_NAME
+                      name: env-docker
+                - name: DB_PASS
+                  valueFrom:
+                    configMapKeyRef:
+                      key: DB_PASS
+                      name: env-docker
+                - name: DB_PORT
+                  valueFrom:
+                    configMapKeyRef:
+                      key: DB_PORT
+                      name: env-docker
+                - name: DB_USER
+                  valueFrom:
+                    configMapKeyRef:
+                      key: DB_USER
+                      name: env-docker
+                - name: HASH_KEY
+                  valueFrom:
+                    configMapKeyRef:
+                      key: HASH_KEY
+                      name: env-docker
+                - name: MONGO_INITDB_DATABASE
+                  valueFrom:
+                    configMapKeyRef:
+                      key: MONGO_INITDB_DATABASE
+                      name: env-docker
+                - name: MONGO_INITDB_ROOT_PASSWORD
+                  valueFrom:
+                    configMapKeyRef:
+                      key: MONGO_INITDB_ROOT_PASSWORD
+                      name: env-docker
+                - name: MONGO_INITDB_ROOT_USERNAME
+                  valueFrom:
+                    configMapKeyRef:
+                      key: MONGO_INITDB_ROOT_USERNAME
+                      name: env-docker
+                - name: REDIS_HOST
+                  valueFrom:
+                    configMapKeyRef:
+                      key: REDIS_HOST
+                      name: env-docker
+                - name: REDIS_MASTER_PASSWORD
+                  valueFrom:
+                    configMapKeyRef:
+                      key: REDIS_MASTER_PASSWORD
+                      name: env-docker
+              image: nginx:latest
+              name: production-nginx
+              ports:
+                - containerPort: 80
+                - containerPort: 443
+              resources: {}
+              volumeMounts:
+                - mountPath: /etc/nginx/nginx.conf
+                  name: nginx-claim0
+          restartPolicy: Always
+          volumes:
+            - name: nginx-claim0
+              persistentVolumeClaim:
+                claimName: nginx-claim0
+    status: {}
+  - apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: nginx-claim0
+      name: nginx-claim0
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 100Mi
+    status: {}
+  - apiVersion: v1
+    kind: Pod
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -o kubernetes2.yml
+        kompose.version: 1.25.0 (HEAD)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: node
+      name: node
+    spec:
+      containers:
+        - env:
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: DB_HOST
+                  name: env-docker
+            - name: DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  key: DB_NAME
+                  name: env-docker
+            - name: DB_PASS
+              valueFrom:
+                configMapKeyRef:
+                  key: DB_PASS
+                  name: env-docker
+            - name: DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: DB_PORT
+                  name: env-docker
+            - name: DB_USER
+              valueFrom:
+                configMapKeyRef:
+                  key: DB_USER
+                  name: env-docker
+            - name: HASH_KEY
+              valueFrom:
+                configMapKeyRef:
+                  key: HASH_KEY
+                  name: env-docker
+            - name: MONGO_INITDB_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  key: MONGO_INITDB_DATABASE
+                  name: env-docker
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  key: MONGO_INITDB_ROOT_PASSWORD
+                  name: env-docker
+            - name: MONGO_INITDB_ROOT_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  key: MONGO_INITDB_ROOT_USERNAME
+                  name: env-docker
+            - name: REDIS_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: REDIS_HOST
+                  name: env-docker
+            - name: REDIS_MASTER_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  key: REDIS_MASTER_PASSWORD
+                  name: env-docker
+          image: node:latest
+          name: node
+          ports:
+            - containerPort: 8000
+          resources: {}
+      restartPolicy: OnFailure
+    status: {}
+  - apiVersion: v1
+    kind: Pod
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -o kubernetes2.yml
+        kompose.version: 1.25.0 (HEAD)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: redis
+      name: redis
+    spec:
+      containers:
+        - env:
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: DB_HOST
+                  name: env-docker
+            - name: DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  key: DB_NAME
+                  name: env-docker
+            - name: DB_PASS
+              valueFrom:
+                configMapKeyRef:
+                  key: DB_PASS
+                  name: env-docker
+            - name: DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: DB_PORT
+                  name: env-docker
+            - name: DB_USER
+              valueFrom:
+                configMapKeyRef:
+                  key: DB_USER
+                  name: env-docker
+            - name: HASH_KEY
+              valueFrom:
+                configMapKeyRef:
+                  key: HASH_KEY
+                  name: env-docker
+            - name: MONGO_INITDB_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  key: MONGO_INITDB_DATABASE
+                  name: env-docker
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  key: MONGO_INITDB_ROOT_PASSWORD
+                  name: env-docker
+            - name: MONGO_INITDB_ROOT_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  key: MONGO_INITDB_ROOT_USERNAME
+                  name: env-docker
+            - name: REDIS_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: REDIS_HOST
+                  name: env-docker
+            - name: REDIS_MASTER_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  key: REDIS_MASTER_PASSWORD
+                  name: env-docker
+          image: redis:latest
+          name: redis
+          ports:
+            - containerPort: 6379
+          resources: {}
+          volumeMounts:
+            - mountPath: /backend/config/redis.conf
+              name: redis-claim0
+      restartPolicy: OnFailure
+      volumes:
+        - name: redis-claim0
+          persistentVolumeClaim:
+            claimName: redis-claim0
+    status: {}
+  - apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: redis-claim0
+      name: redis-claim0
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 100Mi
+    status: {}
+  - apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert -o kubernetes2.yml
+        kompose.version: 1.25.0 (HEAD)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: terraform
+      name: terraform
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          io.kompose.service: terraform
+      strategy:
+        type: Recreate
+      template:
+        metadata:
+          annotations:
+            kompose.cmd: kompose convert -o kubernetes2.yml
+            kompose.version: 1.25.0 (HEAD)
+          creationTimestamp: null
+          labels:
+            io.kompose.service: terraform
+        spec:
+          containers:
+            - env:
+                - name: AWS_ACCESS_KEY_ID
+                - name: AWS_SECRET_ACCESS_KEY
+                - name: AWS_SESSION_TOKEN
+              image: hashicorp/terraform:latest
+              name: terraform
+              resources: {}
+              volumeMounts:
+                - mountPath: /infra
+                  name: terraform-claim0
+          restartPolicy: Always
+          volumes:
+            - name: terraform-claim0
+              persistentVolumeClaim:
+                claimName: terraform-claim0
+    status: {}
+  - apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: terraform-claim0
+      name: terraform-claim0
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 100Mi
+    status: {}
+kind: List
+metadata: {}
+

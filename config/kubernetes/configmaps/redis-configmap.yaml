@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redis-configmap
+data:
+  HASH_KEY: 78:5f:4d:4e:a8:6a
+  REDIS_HOST: redis
+  REDIS_MASTER_PASSWORD: my_master_password

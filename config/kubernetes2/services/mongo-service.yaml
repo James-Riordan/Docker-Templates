@@ -1,0 +1,29 @@
+# Headless service for stable DNS entries of StatefulSet members.
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb
+  labels:
+    app: mongodb
+spec:
+  ports:
+  - name: mongodb
+    port: 27017
+  clusterIP: None
+  selector:
+    app: mongodb
+---
+# Client service for connecting to any MySQL instance for reads.
+# For writes, you must instead connect to the primary: mysql-0.mysql.
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb-read
+  labels:
+    app: mongodb
+spec:
+  ports:
+  - name: mongodb
+    port: 27017
+  selector:
+    app: mongodb
