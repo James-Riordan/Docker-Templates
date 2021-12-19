@@ -13,7 +13,7 @@ class RedisService {
   private client: Redis.Redis;
   private count = 0;
   constructor() {
-    this.client = new Redis(`redis://${REDIS_MASTER_PASSWORD}@${REDIS_HOST}:${REDIS_PORT}/home`)
+    // this.client = new Redis(`redis://${REDIS_MASTER_PASSWORD}@${REDIS_HOST}:${REDIS_PORT}`)
     this.client = new Redis({
       host: REDIS_HOST,
       password: REDIS_MASTER_PASSWORD,

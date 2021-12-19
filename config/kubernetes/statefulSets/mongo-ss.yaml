@@ -1,10 +1,35 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: mongo-persistent-storage
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo
+  labels:
+    name: mongo
+spec:
+  ports:
+  - port: 27017
+    targetPort: 27017
+  clusterIP: None
+  selector:
+    app: mongo
+---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: mongo-ss
+  name: mongo
 spec:
-  serviceName: mongo-service
-  replicas: 1
+  serviceName: "mongo"
+  replicas: 3
   selector:
     matchLabels:
       app: mongo
@@ -12,169 +37,34 @@ spec:
     metadata:
       labels:
         app: mongo
-        replicaset: MainRepSet
     spec:
       terminationGracePeriodSeconds: 10
       containers:
-        - name: mongo-container
-          image: mongo:latest
-          command:
-            - "mongod"
-            - "--bind_ip"
-            - "0.0.0.0"
-            - "--replSet"
-            - "MainRepSet"
-          resources:
-            requests:
-              cpu: 0.2
-              memory: 200Mi
-          ports:
-            - containerPort: 27017
-          volumeMounts:
-            - name: mongodb-persistent-storage-claim
-              mountPath: /data/db
-  volumeClaimTemplates:
-  - metadata:
-      name: mongodb-persistent-storage-claim
-      annotations:
-        volume.beta.kubernetes.io/storage-class: "standard"
-    spec:
-      accessModes: [ "ReadWriteOnce" ]
-      resources:
-        requests:
-          storage: 1Gi
-
-
-
-apiVersion: apps/v1beta1
-kind: StatefulSet
-metadata:
-  name: mongo-ss
-spec:
-  serviceName: mongo-service
-  replicas: 1
-  template:
-    metadata:
-      labels:
-        role: mongo
-        environment: test
-        replicaset: MainRepSet
-    spec:
-      # affinity:
-        # This is to prevent mongodb replicas from ending up on the same
-        # host machine
-        # podAntiAffinity:
-        #   preferredDuringSchedulingIgnoredDuringExecution:
-        #   - weight: 100
-        #     podAffinityTerm:
-        #       labelSelector:
-        #         matchExpressions:
-        #         - key: replicaset
-        #           operator: In
-        #           values:
-        #           - MainRepSet
-        #       topologyKey: kubernetes.io/hostname
-      terminationGracePeriodSeconds: 10
-      containers:
-        - name: mongod-container
-          #image: pkdone/mongo-ent:3.4
+        - name: mongo
           image: mongo
-          imagePullPolicy: Always
-          env:
-          - name: STATEFULSET_NAME
-            valueFrom:
-              fieldRef:
-                fieldPath: metadata.name
-          - name: MACHINE_MEMORY
-            value: &machineMemory "500Mi"
-          # We can change this to a secret
-          - name: DB_USER
-            value: "app_user"
-          - name: DB_PASS
-            value: "app_password"
-          - name: DB_HOST
-            value: "mongodb"
-          - name: DB_NAME:
-            value: "admin"
-          - name: DB_PORT
-            value: "27017"
-          - name: MONGO_INITDB_DATABASE
-            value: "27017"
-          - name: HASH_KEY
-            value: "78:5f:4d:4e:a8:6a"
-          - name: MONGO_INITDB_ROOT_PASSWORD
-            value: "78:5f:4d:4e:a8:6a"
-          - name: MONGO_INITDB_ROOT_USERNAME
-            value: "app_user"
-
           command:
-            - "bash"
-            - "-c"
-            #the default cache size guidance is: "50% of RAM minus 1 GB, or 256 MB"
-            # Which is why the wired tiger cache size is this way. This assumes 2gb of memory
-            # on the host machine. The plan is to change 0.25 to a calculated value
-            # by passing an environment variable that contains the host machines memory
-            # and automatically "personalizing" mongo to the machine its running on
-            - |
-              numactl --interleave=all mongod --wiredTigerCacheSizeGB 0.25 --bind_ip 0.0.0.0 \
-              --replSet MainRepSet --auth --clusterAuthMode keyFile \
-              --keyFile /etc/secrets-volume/mongosecret \
-              --setParameter authenticationMechanisms=SCRAM-SHA-1 \
-              --fork --logpath /var/log/mongod.log \
-              &&
-              if [ $STATEFULSET_NAME == "mongod-0" ];
-              then
-                initiated=0
-                replica_exists=false
-                while [ "$replica_exists" != true ]
-                do
-                  # Need to check to make sure that the other pods are currently up
-                  initiated=`mongo --quiet --eval 'rs.initiate({_id: "MainRepSet", version: 1, members: [
-                         { _id: 0, host : "mongod-0.mongodb-service.default.svc.cluster.local:27017" },
-                         { _id: 1, host : "mongod-1.mongodb-service.default.svc.cluster.local:27017" },
-                         { _id: 2, host : "mongod-2.mongodb-service.default.svc.cluster.local:27017" }
-                   ]})["ok"]'`;
-                  replica_exists=`mongo --quiet --eval 'db.isMaster()["ismaster"]'`;
-                   # Shit we need to check rs status i think instead
-                  echo "Replica exists: " $replica_exists;
-                  sleep 2
-                done
-                # If everything else is workign then we need to create an admin user
-                mongo --eval "db.getSiblingDB('admin').createUser({
-                      user : \"$MONGO_USER\",
-                      pwd  : \"$MONGO_PASSWORD\",
-                      roles: [ { role: 'root', db: 'admin' } ]
-                });"
-                echo "STATEFULSET_NAME: $STATEFULSET_NAME \n MACHINE_MEMORY: $MACHINE_MEMORY";
-              fi && tailf /var/log/mongod.log
-          # resources:
-          #   requests:
-          #     cpu: 1
-          #     memory: 300Mi
+            - mongod
+            - "--replSet"
+            - rs0
+            - "--bind_ip"
+            - 0.0.0.0
           ports:
             - containerPort: 27017
           volumeMounts:
-            - name: secrets-volume
-              # readOnly: true
-              mountPath: /etc/secrets-volume/mongosecret
-              subPath: mongosecret
-            - name: mongodb-persistent-storage-claim
+            - name: mongo-persistent-storage
               mountPath: /data/db
-      volumes:
-        - name: secrets-volume
-          secret:
-            secretName: mongosecret
-            # https://coderstoolbox.net/number/
-            # Convert to octal to decimal because kube only accepts
-            # decimal as input
-            defaultMode: 256
+        - name: mongo-sidecar
+          image: cvallance/mongo-k8s-sidecar
+          env:
+            - name: MONGO_SIDECAR_POD_LABELS
+              value: "app=mongo"
   volumeClaimTemplates:
-  - metadata:
-      name: mongodb-persistent-storage-claim
-      annotations:
-        volume.beta.kubernetes.io/storage-class: "fast"
-    spec:
-      accessModes: [ "ReadWriteOnce" ]
-      resources:
-        requests:
-          storage: 500Mi
+    - metadata:
+        name: mongo-persistent-storage
+        annotations:
+          volume.beta.kubernetes.io/storage-class: "standard"
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: 2Gi

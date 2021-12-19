@@ -16,13 +16,13 @@ spec:
     spec:
       containers:
         - name: backend
-          image: megaserver/backend:latest
+          image: megaserver/backend:v1
           env:
             - name: DB_HOST
               valueFrom:
                 configMapKeyRef:
                   key: DB_HOST
-                  name: mongo-configmap
+                  name: backend-configmap
             - name: DB_NAME
               valueFrom:
                 configMapKeyRef:
@@ -73,6 +73,6 @@ spec:
                 configMapKeyRef:
                   key: REDIS_MASTER_PASSWORD
                   name: backend-configmap
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Never
           ports:
             - containerPort: 8000
