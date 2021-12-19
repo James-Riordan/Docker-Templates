@@ -17,7 +17,7 @@ class RedisService {
     this.client = new Redis({
       host: REDIS_HOST,
       password: REDIS_MASTER_PASSWORD,
-      port: 6379,
+      port: Number(REDIS_PORT),
       retryStrategy(times) {
         const delay = Math.min(times * 500, 20000);
         return delay;

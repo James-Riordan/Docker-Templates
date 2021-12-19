@@ -5,7 +5,7 @@ import dotenv from "dotenv";
 const log: debug.IDebugger = debug("app:mongoose-service");
 
 dotenv.config();
-const { DB_HOST, DB_NAME, DB_PASS, DB_PORT, DB_USER } = process.env;
+const { DB_HOST, DB_NAME, DB_PASS, DB_PORT, DB_USER, REPLICA_SET } = process.env;
 class MongooseService {
   private count = 0;
   private mongooseOptions = {
@@ -28,8 +28,8 @@ class MongooseService {
     mongoose
       .connect(
         DB_USER
-          ? `mongodb://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_NAME}`
-          : `mongodb://${DB_HOST}:${DB_PORT}/${DB_NAME}`,
+          ? `mongodb://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_NAME}/${REPLICA_SET}`
+          : `mongodb://${DB_HOST}:${DB_PORT}/${DB_NAME}/${REPLICA_SET}`,
         this.mongooseOptions
       )
       .then(() => {

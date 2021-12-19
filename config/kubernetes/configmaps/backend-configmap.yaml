@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   name: backend-configmap
 data:
-  DB_HOST: mongo-0.mongo,mongo-1.mongo,mongo-2.mongo
+  DB_HOST: mongo-service #mongo-service  # mongo-0.mongo-service.default.svc.cluster.local,mongo-1.mongo-service.default.svc.cluster.local,mongo-2.mongo-service.default.svc.cluster.local  #mongo-0.mongo,mongo-1.mongo,mongo-2.mongo
   DB_NAME: admin
   DB_PASS: password
   DB_PORT: "27017"
@@ -13,4 +13,6 @@ data:
   MONGO_INITDB_ROOT_PASSWORD: password
   MONGO_INITDB_ROOT_USERNAME: admin
   REDIS_HOST: redis.redis.svc.cluster.local
+  REDIS_PORT: 6379
   REDIS_MASTER_PASSWORD: a-very-complex-password-here
+  REPLICA_SET: "rs0"
