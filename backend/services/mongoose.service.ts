@@ -28,16 +28,19 @@ class MongooseService {
     mongoose
       .connect(
         DB_USER
-          ? `mongodb://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_NAME}/${REPLICA_SET}`
-          : `mongodb://${DB_HOST}:${DB_PORT}/${DB_NAME}/${REPLICA_SET}`,
+          ? `mongodb://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${DB_NAME}?authSource=admin&replicaSet=${REPLICA_SET}`
+          : `mongodb://${DB_HOST}:${DB_PORT}/${DB_NAME}?authSource=admin&replicaSet=${REPLICA_SET}`,
         this.mongooseOptions
       )
       .then(() => {
         log("MongoDB is connected");
+        console.log("MongoDB is connected!")
       })
       .catch((err) => {
         const retrySeconds = 5;
         console.log(err);
+        console.log(`mongodb://${DB_HOST}:${DB_PORT}/${DB_NAME}?authSource=admin&replicaSet=${REPLICA_SET}&authSource=admin`)
+      
         log(
           `MongoDB connection unsuccessful (will retry #${++this
             .count} after ${retrySeconds} seconds):`,

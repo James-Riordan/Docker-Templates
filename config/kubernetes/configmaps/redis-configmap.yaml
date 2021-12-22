@@ -3,6 +3,7 @@ kind: ConfigMap
 metadata:
   name: redis-config
 data:
+  REDIS_PORT: "6379"
   redis.conf: |
     # Redis configuration file example.
     #

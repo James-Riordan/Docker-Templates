@@ -23,7 +23,7 @@ class RedisService {
         return delay;
       },
     });
-    this.client.on("connect", () => log("Redis Connected!"));
+    this.client.on("connect", () => console.log("Redis Connected!"));
   }
   getRedis(): Redis.Redis {
     return this.client;

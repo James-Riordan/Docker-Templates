@@ -73,6 +73,17 @@ spec:
                 configMapKeyRef:
                   key: REDIS_MASTER_PASSWORD
                   name: backend-configmap
+            - name: REDIS_PORT
+              valueFrom:
+                configMapKeyRef:
+                  key: REDIS_PORT
+                  name: backend-configmap
+            - name: REPLICA_SET
+              valueFrom:
+                configMapKeyRef:
+                  key: REPLICA_SET
+                  name: backend-configmap
           imagePullPolicy: Never
           ports:
             - containerPort: 8000
+          
