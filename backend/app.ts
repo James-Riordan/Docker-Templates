@@ -1,4 +1,5 @@
 import express from "express";
+import * as dotenv from "dotenv";
 import { ApolloServer } from "apollo-server-express";
 import { ApolloError } from "apollo-server-errors";
 
@@ -18,8 +19,9 @@ import userService from "./services/users.service";
 import "./interfaces/express.interface";
 import { UserTokenDto } from "./interfaces/dtos/user.dtos";
 
-const { JWT_KEY } = process.env;
+dotenv.config();
 
+const { JWT_KEY } = process.env;
 class App {
   app: express.Application = express();
   server = new ApolloServer({

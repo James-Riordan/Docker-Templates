@@ -6,8 +6,12 @@ const log: debug.IDebugger = debug("app:redis-service");
 
 // bluebird.promisifyAll(redis.RedisClient.prototype);
 
+
 dotenv.config();
-const { REDIS_HOST, REDIS_MASTER_PASSWORD, REDIS_PORT } = process.env;
+const { REDIS_HOST, REDIS_MASTER_PASSWORD, REDIS_PORT, SENTINEL_HOST, SENTINEL_PORT} = process.env;
+
+
+const shl = (SENTINEL_HOST?.split(','))?.map(sentinel => {return {port: Number(SENTINEL_PORT), host: sentinel}})
 
 class RedisService {
   private client: Redis.Redis;
@@ -17,7 +21,8 @@ class RedisService {
     this.client = new Redis({
       host: REDIS_HOST,
       password: REDIS_MASTER_PASSWORD,
-      port: Number(REDIS_PORT),
+      name: "mymaster",
+      sentinels: shl,
       retryStrategy(times) {
         const delay = Math.min(times * 500, 20000);
         return delay;

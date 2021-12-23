@@ -34,7 +34,7 @@ spec:
                 fi
             done
             echo "sentinel monitor mymaster $MASTER 6379 2" >> /tmp/master
-            echo "port 5000
+            echo "port 5000"
             sentinel resolve-hostnames yes
             sentinel announce-hostnames yes
             $(cat /tmp/master)

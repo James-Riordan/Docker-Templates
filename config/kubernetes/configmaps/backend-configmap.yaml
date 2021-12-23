@@ -8,7 +8,6 @@ data:
   DB_PASS: password
   DB_PORT: "27017"
   DB_USER: admin
-  HASH_KEY: 78:5f:4d:4e:a8:6a
   MONGO_INITDB_DATABASE: admin
   MONGO_INITDB_ROOT_PASSWORD: password
   MONGO_INITDB_ROOT_USERNAME: admin
@@ -16,3 +15,7 @@ data:
   REDIS_PORT: "6379"
   REDIS_MASTER_PASSWORD: a-very-complex-password-here
   REPLICA_SET: "rs0"
+  SENTINEL_HOST: sentinel-0.sentinel.redis.svc.cluster.local,sentinel-1.sentinel.redis.svc.cluster.local.sentinel-2.sentinel.redis.svc.cluster.local #sentinel.redis.svc.cluster.local #sentinel-0.sentinel.redis.svc.cluster.local #sentinel.mongodb-service.default.svc.cluster.local
+  SENTINEL_PORT: "5000"
+  HASH_KEY: "$2b$10$G1E/I8mm3Q2N3XC7Zj0Ldu01oRAgdqjXNGTzMDRr8.Rysvk6eu7n."
+  JWT_KEY: "78:5f:4d:4e:a8:6a"
