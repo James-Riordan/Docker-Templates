@@ -4,7 +4,6 @@ metadata:
   name: prometheus-server-conf
   labels:
     name: prometheus-server-conf
-  namespace: monitoring
 data:
   prometheus.rules: |-
     groups:
@@ -94,6 +93,7 @@ data:
       - job_name: 'kube-state-metrics'
         static_configs:
           - targets: ['kube-state-metrics.kube-system.svc.cluster.local:8080']
+      
       - job_name: 'kubernetes-cadvisor'
         scheme: https
         tls_config:
@@ -139,7 +139,3 @@ data:
         - source_labels: [__meta_kubernetes_service_name]
           action: replace
           target_label: kubernetes_name
-        
-        - job_name: 'kube-state-metrics'
-          static_configs:
-            - targets: ['kube-state-metrics.kube-system.svc.cluster.local:8080']

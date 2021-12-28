@@ -1,0 +1,10 @@
+apiVersion: tekton.dev/v1beta1
+kind: TaskRun
+metadata:
+  name: apply-task-run
+spec:
+  params:
+    - name: url
+      value: https://github.com/mchmarny/rester-tester.git
+  taskRef:
+    name: deploy-using-kubectl

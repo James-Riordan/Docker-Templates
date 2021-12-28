@@ -11,7 +11,7 @@ rm $TMPFILE
 
 # Create mongodb service with mongod stateful-set
 # TODO: Temporarily added no-validate due to k8s 1.8 bug: https://github.com/kubernetes/kubernetes/issues/53309
-kubectl apply -f ../mongodb-statefulset.yaml --validate=false
+kubectl apply -f ../statefulSets/mongodb-statefulset.yaml --validate=false
 sleep 5
 
 # Print current deployment state (unlikely to be finished yet)

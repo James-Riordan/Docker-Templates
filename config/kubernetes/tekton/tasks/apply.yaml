@@ -1,0 +1,35 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: deploy-using-kubectl
+spec:
+  params:
+    - name: path
+      type: string
+      description: Path to the manifest to apply
+    - name: command
+      type: string
+      description: Command to execute after creation
+  steps:
+    - name: delete-kubectl
+      image: lachlanevenson/k8s-kubectl
+      command: ["kubectl"]
+      args:
+        - "delete"
+        - "-f"
+        - "$(params.path)"
+    - name: run-kubectl
+      image: lachlanevenson/k8s-kubectl
+      command: ["kubectl"]
+      args:
+        - "apply"
+        - "-f"
+        - "$(params.path)"
+    - name: run-command
+      image: ubuntu
+      command: ["$(params.command)"]
+  volumes:
+    - name: apply-volume
+      emptyDir: {}
+
+      

@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: prometheus-deployment
-  namespace: monitoring
   labels:
     app: prometheus-server
 spec:
@@ -26,11 +25,11 @@ spec:
             - containerPort: 9090
           resources:
             requests:
-              cpu: 500m
-              memory: 500M
+              cpu: 250m
+              memory: 250M
             limits:
               cpu: 1
-              memory: 1Gi
+              memory: 500M
           volumeMounts:
             - name: prometheus-config-volume
               mountPath: /etc/prometheus/
